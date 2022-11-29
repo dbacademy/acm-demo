@@ -17,7 +17,12 @@ spec:
           name: policy-certificate-example
         spec:
           namespaceSelector:
-            include: ["default"]
+            include: 
+               - default
+               - openshift-ingress
+               - openshift-console
+            exclude:
+               - kube-*   
           remediationAction: inform # the policy-template spec.remediationAction is overridden by the preceding parameter value for spec.remediationAction.
           severity: high
           minimumDuration: 1000h
@@ -45,4 +50,4 @@ spec:
     type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - {key: environment, operator: In, values: ["production"]}
+      - {key: env, operator: In, values: ["prod"]}
