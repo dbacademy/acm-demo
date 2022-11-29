@@ -2,52 +2,58 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-certificate
+  namespace: acm-gitops
   annotations:
-    policy.open-cluster-management.io/standards: NIST SP 800-53
     policy.open-cluster-management.io/categories: SC System and Communications Protection
+    policy.open-cluster-management.io/standards: NIST SP 800-53
     policy.open-cluster-management.io/controls: SC-8 Transmission Confidentiality and Integrity
 spec:
-  remediationAction: inform
   disabled: false
+  remediationAction: inform
   policy-templates:
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
-        kind: CertificatePolicy # cert management expiration
+        kind: CertificatePolicy
         metadata:
-          name: policy-certificate-example
+          name: policy-certificate
         spec:
           namespaceSelector:
-            include: 
-               - default
-               - openshift-ingress
-               - openshift-console
+            include:
+              - default
+              - openshift-ingress
+              - openshift-console
             exclude:
-               - kube-*   
-          remediationAction: inform # the policy-template spec.remediationAction is overridden by the preceding parameter value for spec.remediationAction.
-          severity: high
-          minimumDuration: 1000h
----
-apiVersion: policy.open-cluster-management.io/v1
-kind: PlacementBinding
-metadata:
-  name: binding-policy-certificate
-placementRef:
-  name: placement-policy-certificate
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
-subjects:
-- name: policy-certificate
-  kind: Policy
-  apiGroup: policy.open-cluster-management.io
+              - kube-*
+          remediationAction: inform
+          severity: medium
+          minimumDuration: 300h
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
-  name: placement-policy-certificate
+  name: policy-certificate-placement
+  namespace: acm-gitops
 spec:
-  clusterConditions:
-  - status: "True"
-    type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - {key: env, operator: In, values: ["prod"]}
+      - key: env
+        operator: In
+        values:
+          - prod
+  clusterConditions:
+    - status: "True"
+      type: ManagedClusterConditionAvailable
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: policy-certificate-placement
+  namespace: acm-gitops
+placementRef:
+  name: policy-certificate-placement
+  apiGroup: apps.open-cluster-management.io
+  kind: PlacementRule
+subjects:
+  - name: policy-certificate
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy
