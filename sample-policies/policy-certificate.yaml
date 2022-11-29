@@ -26,7 +26,7 @@ spec:
               - kube-*
           remediationAction: inform
           severity: medium
-          minimumDuration: 300h
+          minimumDuration: 1000h
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
