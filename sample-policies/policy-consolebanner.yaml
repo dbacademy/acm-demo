@@ -1,0 +1,96 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-console-notification-banner-config
+  namespace: openshift-gitops
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+  labels:
+    app.kubernetes.io/instance: config-policies
+  managedFields:
+  resourceVersion: "342867604"
+  uid: 39fbecc9-1b0f-4d40-a726-e57225d13e89
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: console-notification-banner-config
+        spec:
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - default
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: console.openshift.io/v1
+                kind: ConsoleNotification
+                metadata:
+                  name: '{{ fromClusterClaim "name" }}'
+                spec:
+                  backgroundColor: "#145b91"
+                  color: "#000000"
+                  location: BannerTop
+                  text: Prod - '{{ fromClusterClaim "name" }}'
+          remediationAction: enforce
+          severity: low
+  remediationAction: enforce
+status:
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: PlacementRule
+metadata:
+  name: placement-policy-console-notification-banner-config
+  namespace: openshift-gitops
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"apps.open-cluster-management.io/v1","kind":"PlacementRule","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"config-policies"},"name":"placement-policy-console-notification-banner-config","namespace":"openshift-gitops"},"spec":{"clusterConditions":[{"status":"True","type":"ManagedClusterConditionAvailable"}],"clusterSelector":{"matchExpressions":[]}}}
+  creationTimestamp: 2022-08-24T11:57:39Z
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: config-policies
+  resourceVersion: "342867581"
+  uid: b21b2d7d-73c3-4376-8bf4-db6c261d9e65
+spec:
+  clusterConditions:
+    - status: "True"
+      type: ManagedClusterConditionAvailable
+  clusterSelector:
+    matchExpressions: []
+status:
+  decisions:
+    - clusterName: local-cluster
+      clusterNamespace: local-cluster
+    - clusterName: rnd-icp
+      clusterNamespace: rnd-icp
+    - clusterName: sandbox-dev
+      clusterNamespace: sandbox-dev
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: binding-policy-console-notification-banner-config
+  namespace: openshift-gitops
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"policy.open-cluster-management.io/v1","kind":"PlacementBinding","metadata":{"annotations":{},"labels":{"app.kubernetes.io/instance":"config-policies"},"name":"binding-policy-console-notification-banner-config","namespace":"openshift-gitops"},"placementRef":{"apiGroup":"apps.open-cluster-management.io","kind":"PlacementRule","name":"placement-policy-console-notification-banner-config"},"subjects":[{"apiGroup":"policy.open-cluster-management.io","kind":"Policy","name":"policy-console-notification-banner-config"}]}
+  creationTimestamp: 2022-08-24T11:57:39Z
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: config-policies
+  resourceVersion: "34664369"
+  uid: 7839d408-1128-415c-9f02-dc919492bda1
+placementRef:
+  name: placement-policy-console-notification-banner-config
+  apiGroup: apps.open-cluster-management.io
+  kind: PlacementRule
+subjects:
+  - name: policy-console-notification-banner-config
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy
